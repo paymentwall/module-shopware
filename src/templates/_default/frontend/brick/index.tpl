@@ -1,11 +1,9 @@
 {extends file='frontend/index/index.tpl'}
 
 {* Main content *}
+{block name='frontend_index_content_left'}{/block}
 {block name='frontend_index_content'}
     <div id="center" class="grid_13 home">
-        <script type="text/javascript">
-            $("#left").hide();
-        </script>
         <div id="payment-form-container"></div>
         <script src="https://api.paymentwall.com/brick/brick.1.3.js"></script>
         <script>

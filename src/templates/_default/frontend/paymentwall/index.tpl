@@ -1,11 +1,10 @@
 {extends file='frontend/index/index.tpl'}
 
 {* Main content *}
+{block name='frontend_index_content_left'}{/block}
 {block name='frontend_index_content'}
     <div id="center" class="grid_13 home">
-        <script type="text/javascript">
-            $("#left").hide();
-        </script>
+
         {$iframe}
         <script type="text/javascript">
             var xhttp = new XMLHttpRequest();

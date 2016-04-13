@@ -2,7 +2,7 @@
 if (!class_exists('Paymentwall_Config'))
     require_once(Shopware()->OldPath() . "engine/Library/paymentwall/lib/paymentwall.php");
 
-define('BASE_URL', Shopware()->Shop()->getBaseUrl());
+define('PW_BASE_URL', Shopware()->Shop()->getBaseUrl());
 
 class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Frontend_Payment
 {
@@ -39,7 +39,7 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
     {
         if (!empty(Shopware()->Session()->pwLocal)) {
             unset(Shopware()->Session()->pwLocal);
-            $this->redirect(BASE_URL);
+            $this->redirect(PW_BASE_URL);
         } else {
             try {
                 $orderNumber = $this->saveOrder(
@@ -59,7 +59,7 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
                 $this->View()->orderId = $orderId;
                 $this->View()->iframe = $this->getWidget($params);
             } catch (Exception $e) {
-                $this->redirect(BASE_URL);
+                $this->redirect(PW_BASE_URL);
             }
         }
     }
@@ -92,8 +92,8 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
             array_merge(
                 array(
                     'integration_module' => 'shopware',
-                    'test_mode' => ('Yes' == trim($this->config->get("testMode"))) ? 1 : 0,
-                    'success_url' => (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . BASE_URL . '/checkout/finish'
+                    'test_mode' => trim($this->config->get("testMode")),
+                    'success_url' => (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . PW_BASE_URL . '/checkout/finish'
                 ),
                 $this->getUserProfileData($params['user'])
             )

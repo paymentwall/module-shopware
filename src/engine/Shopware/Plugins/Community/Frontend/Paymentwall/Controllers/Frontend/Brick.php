@@ -2,7 +2,7 @@
 if (!class_exists('Paymentwall_Config'))
     require_once(Shopware()->OldPath() . "engine/Library/paymentwall/lib/paymentwall.php");
 
-define('BASE_URL', Shopware()->Shop()->getBaseUrl());
+define('PW_BASE_URL', Shopware()->Shop()->getBaseUrl());
 
 class Shopware_Controllers_Frontend_Brick extends Shopware_Controllers_Frontend_Payment
 {
@@ -29,7 +29,7 @@ class Shopware_Controllers_Frontend_Brick extends Shopware_Controllers_Frontend_
     {
         if (!empty(Shopware()->Session()->brick)) {
             unset(Shopware()->Session()->brick);
-            $this->redirect(BASE_URL);
+            $this->redirect(PW_BASE_URL);
         } else {
             try {
                 $orderNumber = $this->saveOrder(
@@ -49,7 +49,7 @@ class Shopware_Controllers_Frontend_Brick extends Shopware_Controllers_Frontend_
                 $this->View()->public_key = trim($this->config->get("publicKey"));
                 $this->View()->merchant_name = trim($this->config->get("merchantName"));
             } catch (Exception $e) {
-                $this->redirect(BASE_URL);
+                $this->redirect(PW_BASE_URL);
             }
         }
     }
