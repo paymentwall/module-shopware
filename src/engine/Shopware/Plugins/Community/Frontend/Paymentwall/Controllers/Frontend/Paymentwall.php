@@ -143,17 +143,18 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
 
         $pingback = new Paymentwall_Pingback($getData, $_SERVER['REMOTE_ADDR']);
         $order = Shopware()->Modules()->Order();
-        $orderId = $pingback->getProductId();
+        $orderId = (int) $pingback->getProductId();
         $sendMail = true;
 
         if ($pingback->validate()) {
             if ($pingback->isDeliverable()) {
                 $order->setOrderStatus($orderId, self::ORDER_PROCESS);
                 $order->setPaymentStatus($orderId, self::PAYMENT_COMPLETELY_PAID, $sendMail);
+                $this->updateOrderReferer($orderId, $pingback->getReferenceId());
             } elseif ($pingback->isCancelable()) {
                 $order->setOrderStatus($orderId, self::ORDER_CANCELED);
                 $order->setPaymentStatus($orderId, self::PAYMENT_CANCELED, $sendMail);
-            }
+            }            
             echo "OK";
         } else {
             echo $pingback->getErrorSummary();
@@ -169,6 +170,12 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
     private function getOrderStatusByOrderId($orderId)
     {
         return Shopware()->Db()->fetchOne("SELECT status FROM s_order WHERE id = ?", array($orderId));
+    }
+
+
+    private function updateOrderReferer($orderId, $referer)
+    {
+        Shopware()->Db()->update('s_order', array('referer' => $referer), array('id='.$orderId));
     }
 
     /**

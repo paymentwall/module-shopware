@@ -97,6 +97,7 @@ class Shopware_Controllers_Frontend_Brick extends Shopware_Controllers_Frontend_
                 $order->setOrderStatus($orderId, self::ORDER_CANCELED);
                 $order->setPaymentStatus($orderId, self::PAYMENT_CANCELED, $sendMail);
             }
+            $this->updateOrderReferer($orderId, $charge->getId());
             unset(Shopware()->Session()->brick);
         }
 
@@ -107,5 +108,10 @@ class Shopware_Controllers_Frontend_Brick extends Shopware_Controllers_Frontend_
     private function getOrderIdByOrderNumber($orderNumber)
     {
         return Shopware()->Db()->fetchOne("SELECT id FROM s_order WHERE ordernumber = ?", array($orderNumber));
+    }
+
+    private function updateOrderReferer($orderId, $referer)
+    {
+        Shopware()->Db()->update('s_order', array('referer' => $referer), array('id='.$orderId));
     }
 }
