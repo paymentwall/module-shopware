@@ -18,7 +18,7 @@ class Shopware_Plugins_Frontend_Paymentwall_Bootstrap extends Shopware_Component
      */
     public function getVersion()
     {
-        return "1.0.0";
+        return "2.0.0";
     }
 
     /**
@@ -35,9 +35,9 @@ class Shopware_Plugins_Frontend_Paymentwall_Bootstrap extends Shopware_Component
             'supplier' => 'Paymentwall',
             'support' => 'support@paymentwall.com',
             'link' => 'https://www.paymentwall.com',
-            'copyright' => 'Copyright (c) 2016, Paymentwall',
+            'copyright' => 'Copyright (c) 2017, Paymentwall',
             'label' => 'Paymentwall',
-            'description' => '<h2>Payment plugin for Shopware Community Edition Version 4.0.0 - 4.3.6</h2>'
+            'description' => '<h2>Payment plugin for Shopware Community Edition Version 5.3</h2>'
         );
     }
 
@@ -133,7 +133,7 @@ class Shopware_Plugins_Frontend_Paymentwall_Bootstrap extends Shopware_Component
             $paymentwall = $this->Payments()->findOneBy(array('name' => 'pwlocal'));
             $brick = $this->Payments()->findOneBy(array('name' => 'brick'));
 
-            $sortedSnippets = parse_ini_file(dirname(__FILE__) . '/snippets/frontend/paymentwall/checkout/payments.ini', true);
+            $sortedSnippets = parse_ini_file(dirname(__FILE__) . '/Snippets/frontend/paymentwall/checkout/payments.ini', true);
             $shops = Shopware()->Db()->select()
                 ->from('s_core_shops', array('id', 'default'))
                 ->joinInner('s_core_locales', '`s_core_shops`.`locale_id`=`s_core_locales`.`id`', 'locale')
@@ -287,11 +287,20 @@ class Shopware_Plugins_Frontend_Paymentwall_Bootstrap extends Shopware_Component
     private function _applyBackendViewModifications()
     {
         try {
-            $parent = $this->Menu()->findOneBy('label', 'logfile');
-            $this->createMenuItem(array('label' => 'Paymentwall', 'class' => 'paymentwall', 'active' => 1,
-                'controller' => 'Paymentwall', 'action' => 'index', 'parent' => $parent));
+            $parent = $this->Menu()->findOneBy(['label' => 'Logfile']);
+            $this->createMenuItem(
+                array(
+                    'label' => 'Paymentwall', 
+                    'class' => 'paymentwall', 
+                    'active' => 1,
+                    'controller' => 'Paymentwall', 
+                    'action' => 'index', 
+                    'parent' => $parent
+                )
+            );
         } catch (Exception $exception) {
             throw new Exception('Can not create menu entry.' . $exception->getMessage());
         }
     }
+
 }

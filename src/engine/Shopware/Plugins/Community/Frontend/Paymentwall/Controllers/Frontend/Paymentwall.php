@@ -10,9 +10,11 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
     const ORDER_OPEN = 0;
     const ORDER_PROCESS = 1;
     const ORDER_COMPLETED = 2;
-    const ORDER_CANCELED = 8;
+    const ORDER_CANCELED = 4;
     const PAYMENT_COMPLETELY_PAID = 12;
-    const PAYMENT_CANCELED = 20;
+    const PAYMENT_CANCELED = 35;
+    const PAYMENT_NO_CREDIT_APPROVED = 30;
+    const PAYMENT_REVIEW_NECESSARY = 21;
 
     public $_unsetParams = array();
 
@@ -25,9 +27,11 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
             'public_key' => trim($this->config->get("projectKey")), // available in your Paymentwall merchant area
             'private_key' => trim($this->config->get("secretKey")) // available in your Paymentwall merchant area
         ));
+
         $this->_unsetParams = array(
             'controller',
-            'action'
+            'action',
+            'module'
         );
     }
 
@@ -72,9 +76,9 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
     private function getWidget($params)
     {
         $widget = new Paymentwall_Widget(
-            !empty($params['user']['additional']['user']['customerId']) ?
-                $params['user']['additional']['user']['customerId'] :
-                $_SERVER['REMOTE_ADDR'], // id of the end-user
+            !empty($params['user']['additional']['user']['email']) ?
+                $params['user']['additional']['user']['email'] :
+                $params['user']['additional']['user']['id'],
             trim($this->config->get("widgetCode")),
             array(
                 new Paymentwall_Product(
@@ -91,6 +95,7 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
             // additional parameters
             array_merge(
                 array(
+                    'email' => $params['user']['additional']['user']['email'],
                     'integration_module' => 'shopware',
                     'test_mode' => trim($this->config->get("testMode")),
                     'success_url' => (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . PW_BASE_URL . '/checkout/finish'
@@ -99,7 +104,11 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
             )
         );
 
-        return $widget->getHtmlCode(array('height' => 400, 'width' => '100%'));
+        return $widget->getHtmlCode(array(
+            'height' => 600, 
+            'width' => '100%',
+            'frameborder' => 0
+        ));
     }
 
     /**
@@ -139,13 +148,33 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
      */
     public function pingbackAction()
     {
+        Paymentwall_Config::getInstance()->set(array(
+            'api_type' => Paymentwall_Config::API_GOODS,
+            'public_key' => trim($this->config->get("publicKey")), // available in your Paymentwall merchant area
+            'private_key' => trim($this->config->get("secretKey"))// available in your Paymentwall merchant area
+        ));
+
         $getData = $this->getRequestParams();
+        $orderId = $getData['goodsid'];
+        $paymentId = $this->getPaymentIdByOrderId($orderId);
+        $paymentName = $this->getPaymentNameByPaymentId($paymentId);
 
         $pingback = new Paymentwall_Pingback($getData, $_SERVER['REMOTE_ADDR']);
         $order = Shopware()->Modules()->Order();
-        $orderId = (int) $pingback->getProductId();
-        $sendMail = true;
+        if(!$pingback->validate(true)) {
+            if ($paymentName == 'brick') {
+                Paymentwall_Config::getInstance()->set(array(
+                    'api_type' => Paymentwall_Config::API_GOODS,
+                    'public_key' => trim($this->config->get("publicKey")), // available in your Paymentwall merchant area
+                    'private_key' => $this->config->get("testMode") ? trim($this->config->get("privateKey")) : trim($this->config->get("secretKey"))// available in your Paymentwall merchant area
+                ));
+            }
 
+            $pingback = new Paymentwall_Pingback($getData, $_SERVER['REMOTE_ADDR']);
+        }
+
+        $sendMail = true;
+       
         if ($pingback->validate()) {
             if ($pingback->isDeliverable()) {
                 $order->setOrderStatus($orderId, self::ORDER_PROCESS);
@@ -154,12 +183,15 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
             } elseif ($pingback->isCancelable()) {
                 $order->setOrderStatus($orderId, self::ORDER_CANCELED);
                 $order->setPaymentStatus($orderId, self::PAYMENT_CANCELED, $sendMail);
-            }            
-            echo "OK";
+            } elseif ($pingback->isUnderReview()) {
+                $order->setOrderStatus($orderId, self::ORDER_OPEN);
+                $order->setPaymentStatus($orderId, self::PAYMENT_REVIEW_NECESSARY, $sendMail);
+            }        
+            die("OK");
         } else {
-            echo $pingback->getErrorSummary();
+            die($pingback->getErrorSummary());
         }
-        die;
+        
     }
 
     private function getOrderIdByOrderNumber($orderNumber)
@@ -172,13 +204,23 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
         return Shopware()->Db()->fetchOne("SELECT status FROM s_order WHERE id = ?", array($orderId));
     }
 
-
     private function updateOrderReferer($orderId, $referer)
     {
         Shopware()->Db()->update('s_order', array('referer' => $referer), array('id='.$orderId));
     }
 
+    private function getPaymentIdByOrderId($orderId)
+    {
+        return Shopware()->Db()->fetchOne("SELECT paymentID FROM s_order WHERE id = ?", array($orderId));
+    }
+
+    private function getPaymentNameByPaymentId($paymentId)
+    {
+        return Shopware()->Db()->fetchOne("SELECT name FROM s_core_paymentmeans WHERE id = ?", array($paymentId));
+    }
+
     /**
+     * 
      * Check order status, redirect to thank you page
      *
      * @param integer $orderId
