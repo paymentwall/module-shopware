@@ -20,7 +20,6 @@
                 xhttp.send();
             }, 10000);
         </script>
-
     </div>
 {/block}
 
