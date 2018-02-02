@@ -5,7 +5,7 @@
 {block name='frontend_index_content'}
     <div id="center" class="grid_13 home">
         <div id="payment-form-container"></div>
-        <script src="https://api.paymentwall.com/brick/brick.1.3.js"></script>
+        <script src="https://api.paymentwall.com/brick/brick.1.4.js"></script>
         <script>
             var brick = new Brick({
                 public_key: "{$public_key}",
@@ -42,14 +42,19 @@
         </script>
     </div>
     <style>
-        .brick-wrapper {
-            margin: auto;
+        .brick-input--cc-number, .brick-input--email {
+            width: 220px !important;
+            padding: 0px 10px 0px 35px !important;
         }
-
-        .brick-iw-cvv:before, .brick-iw-exp:before, .brick-iw-cc:before, .brick-iw-email:before {
-            margin: 15px 0 0 11px;
+        .brick-input--cc-exp, .brick-input--cc-cvv {
+            width: 110px !important;
+             padding: 0px 10px 0px 35px !important;
+        }
+        section.block-group {
+            min-height: 500px !important;;
+        }
+        #center {
+            margin-top: 60px;
         }
     </style>
 {/block}
-
- 
