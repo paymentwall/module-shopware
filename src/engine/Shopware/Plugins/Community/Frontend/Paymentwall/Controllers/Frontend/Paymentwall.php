@@ -15,6 +15,7 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
     const PAYMENT_CANCELED = 35;
     const PAYMENT_NO_CREDIT_APPROVED = 30;
     const PAYMENT_REVIEW_NECESSARY = 21;
+    const PAYMENT_BRICK = 'brick';
 
     public $_unsetParams = array();
 
@@ -148,31 +149,19 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
      */
     public function pingbackAction()
     {
-        Paymentwall_Config::getInstance()->set(array(
-            'api_type' => Paymentwall_Config::API_GOODS,
-            'public_key' => trim($this->config->get("publicKey")), // available in your Paymentwall merchant area
-            'private_key' => trim($this->config->get("secretKey"))// available in your Paymentwall merchant area
-        ));
-
         $getData = $this->getRequestParams();
         $orderId = $getData['goodsid'];
         $paymentId = $this->getPaymentIdByOrderId($orderId);
         $paymentName = $this->getPaymentNameByPaymentId($paymentId);
 
+        Paymentwall_Config::getInstance()->set(array(
+            'api_type' => Paymentwall_Config::API_GOODS,
+            'public_key' => trim($this->config->get("publicKey")), // available in your Paymentwall merchant area
+            'private_key' => ($this->config->get("testMode") && $paymentName == self::PAYMENT_BRICK) ? trim($this->config->get("privateKey")) : trim($this->config->get("secretKey"))// available in your Paymentwall merchant area
+        ));
+        
         $pingback = new Paymentwall_Pingback($getData, $_SERVER['REMOTE_ADDR']);
         $order = Shopware()->Modules()->Order();
-        if(!$pingback->validate()) {
-            if ($paymentName == 'brick') {
-                Paymentwall_Config::getInstance()->set(array(
-                    'api_type' => Paymentwall_Config::API_GOODS,
-                    'public_key' => trim($this->config->get("publicKey")), // available in your Paymentwall merchant area
-                    'private_key' => $this->config->get("testMode") ? trim($this->config->get("privateKey")) : trim($this->config->get("secretKey"))// available in your Paymentwall merchant area
-                ));
-            }
-
-            $pingback = new Paymentwall_Pingback($getData, $_SERVER['REMOTE_ADDR']);
-        }
-
         $sendMail = true;
        
         if ($pingback->validate()) {
@@ -191,7 +180,6 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
         } else {
             die($pingback->getErrorSummary());
         }
-        
     }
 
     private function getOrderIdByOrderNumber($orderNumber)
@@ -236,4 +224,3 @@ class Shopware_Controllers_Frontend_Paymentwall extends Shopware_Controllers_Fro
         die;
     }
 }
-
