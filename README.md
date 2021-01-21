@@ -3,8 +3,8 @@ Paymentwall module for Shopware.
 
 
 ###Versions
-* Tested on Shopware 5.3.5
-* PHP 5.3 or later
+* Tested on Shopware 5.3.5, 5.6.9
+* PHP 5.6 or later
 
 #Installation
 To install Paymentwall Shopware module, please follow the [instructions](https://docs.paymentwall.com/modules/shopware).

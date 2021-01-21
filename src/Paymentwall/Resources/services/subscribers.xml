@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="paymentwall.subscriber.refund_subscriber" class="Paymentwall\Subscriber\RefundSubsciber">
+            <argument type="service" id="paymentwall.refund_service"/>
+            <tag name="shopware.event_subscriber"/>
+        </service>
+        <service id="paymentwall.subscriber.delivery_subscriber" class="Paymentwall\Subscriber\DeliveryConfirmationSubscriber">
+            <argument type="service" id="paymentwall.delivery_service"/>
+            <argument type="service" id="paymentwall.order_service"/>
+            <tag name="shopware.event_subscriber"/>
+        </service>
+        <service id="paymentwall.subscriber.frontend_subscriber" class="Paymentwall\Subscriber\FrontendCheckout">
+            <argument>%paymentwall.plugin_dir%</argument>
+            <argument type="service" id="template"/>
+            <argument type="service" id="paymentwall.paymentsystem_service"/>
+            <tag name="shopware.event_subscriber"/>
+        </service>
+        <service id="paymentwall.subscriber.less" class="Paymentwall\Subscriber\Less">
+            <argument>%paymentwall.plugin_dir%</argument>
+            <tag name="shopware.event_subscriber"/>
+        </service>
+        <service id="paymentwall.subscriber.paymentwallinit" class="Paymentwall\Subscriber\PaymentwallInit">
+            <tag name="shopware.event_subscriber"/>
+        </service>
+        <service id="paymentwall.subscriber.activatePlugin" class="Paymentwall\Subscriber\ActivatePlugin">
+            <argument type="service" id="dbal_connection"/>
+            <tag name="shopware.event_subscriber"/>
+        </service>
+    </services>
+</container>

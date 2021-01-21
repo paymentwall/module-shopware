@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/5.3/engine/Shopware/Components/Plugin/schema/plugin.xsd">
+    <label lang="de">Paymentwall</label>
+    <label lang="en">Paymentwall</label>
+
+    <version>1.0.0</version>
+    <copyright>(c) by Paymentwall</copyright>
+    <license>MIT</license>
+    <link>https://paymentwall.com</link>
+    <author>Paymentwall</author>
+    <compatibility minVersion="5.3.0"/>
+
+    <description lang="en">Accept payments from all over the world using many local and global credit cards, bank transfers, ewallets, sms, prepaid cards such as Paysafecard, Ukash and more via Paymentwall</description>
+
+    <changelog version="1.0.0">
+        <changes lang="de">Erstveröffentlichung;</changes>
+        <changes lang="en">First release;</changes>
+    </changelog>
+</plugin>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/5.3/engine/Shopware/Components/Plugin/schema/config.xsd">
+    <elements>
+        <element required="true" type="text" scope="locale">
+            <name>pwProjectKey</name>
+            <label lang="en">Project Key</label>
+            <description lang="en">Your Paymentwall Project Key</description>
+        </element>
+        <element required="true" type="text" scope="locale">
+            <name>pwSecretKey</name>
+            <label lang="en">Secret Key</label>
+            <description lang="en">Your Paymentwall Secret Key</description>
+        </element>
+        <element required="true" type="text" scope="locale">
+            <name>pwWidget</name>
+            <label lang="en">Widget Code</label>
+            <description lang="en">Enter your preferred widget code</description>
+        </element>
+        <element required="true" type="boolean" scope="locale">
+            <name>pwRefundState</name>
+            <label lang="en">Refund transaction when order is canceled/rejected</label>
+            <value>false</value>
+        </element>
+        <element type="boolean" scope="locale">
+            <name>pwTestMode</name>
+            <label lang="en">Enable Test Mode</label>
+            <value>false</value>
+        </element>
+        <element type="boolean" scope="locale">
+            <name>pwRedirectPayment</name>
+            <label lang="en">Redirect Payment</label>
+            <value>false</value>
+            <description lang="en">Choose yes to redirect customer to checkout on Paymentwall website </description>
+        </element>
+    </elements>
+</config>

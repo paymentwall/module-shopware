@@ -1,3 +1,3 @@
-[submodule "src/engine/Library/paymentwall"]
-	path = src/engine/Library/paymentwall
-	url = git@github.com:paymentwall/paymentwall-php.git
+[submodule "src/Paymentwall/Components/Libs/Paymentwall"]
+	path = src/Paymentwall/Components/Libs/Paymentwall
+	url = https://github.com/paymentwall/paymentwall-php.git
