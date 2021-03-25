@@ -23,18 +23,23 @@ class Shopware_Controllers_Frontend_PaymentwallPingback extends Shopware_Control
     public function indexAction()
     {
         $pingbackParams = $this->Request()->getParams();
-        unset($pingbackParams['module'], $pingbackParams['controller'], $pingbackParams['action']);
-
-        $this->pingbackService->loadData($pingbackParams);
         $orderId = $pingbackParams['goodsid'];
-        $orderPaymentId = $this->orderService->getPaymentIdByOrderId($orderId);
 
-        if ($orderPaymentId != UtilService::getPaymentwallPaymentId()) {
-            die('wrong payment method');
+        $order = $this->orderService->loadOrderRepositoryById($orderId);
+        if (empty($order)) {
+            die('Order not found');
         }
 
-        if ($this->isOrderWasPaid($orderId) && $this->pingbackService->isPingbackDeliverable()) {
-            die('Order was paid');
+        unset($pingbackParams['module'], $pingbackParams['controller'], $pingbackParams['action']);
+        $this->pingbackService->loadData($pingbackParams);
+
+        $orderPaymentId = $this->orderService->getPaymentIdByOrderId($orderId);
+        if ($orderPaymentId != UtilService::getPaymentwallPaymentId()) {
+            die('Wrong payment method');
+        }
+
+        if (!$this->canProcessPingback($order, $orderId)) {
+            die('Can not process pingback');
         }
 
         if ($this->pingbackService->verifyPingback()) {
@@ -76,19 +81,23 @@ class Shopware_Controllers_Frontend_PaymentwallPingback extends Shopware_Control
         $this->deliveryService->sendDeliveryData($deliveryDataPrepared);
     }
 
-    protected function isOrderWasPaid($orderId)
+    /**
+     * @param Order $order
+     * @return bool
+     */
+    private function canProcessPingback($order, $orderId)
     {
-        $order = $this->orderService->loadOrderRepositoryById($orderId);
-
-        if (!($order instanceof Order)) {
-            exit('Order is not loaded');
-        }
-
-        if ($this->orderService->isOrderHistoryHasPaidStatus($orderId)
-            && $order->getTransactionId() != $order->getTemporaryId()
-        ) {
+        if (!$this->pingbackService->isPingbackDeliverable()) {
             return true;
         }
-        return false;
+
+        if ($this->orderService->checkOrderWasPaid($orderId)
+            && $order->getTransactionId() != $order->getTemporaryId()
+        ) {
+            return false;
+        }
+
+        return true;
     }
+
 }

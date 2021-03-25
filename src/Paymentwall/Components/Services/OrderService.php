@@ -86,7 +86,7 @@ class OrderService
         return $repository->find($orderId);
     }
 
-    public function isOrderHistoryHasPaidStatus($orderId)
+    public function checkOrderWasPaid($orderId)
     {
         return $this->connection->createQueryBuilder()
             ->select('id')
