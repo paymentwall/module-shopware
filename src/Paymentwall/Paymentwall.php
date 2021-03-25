@@ -41,7 +41,7 @@ class Paymentwall extends Plugin
     public function uninstall(UninstallContext $context)
     {
         $this->setActiveFlag($context->getPlugin()->getPayments(), false);
-        $context->scheduleClearCache(UpdateContext::CACHE_LIST_ALL);
+        $context->scheduleClearCache(UninstallContext::CACHE_LIST_ALL);
     }
 
     /**
@@ -50,7 +50,7 @@ class Paymentwall extends Plugin
     public function deactivate(DeactivateContext $context)
     {
         $this->setActiveFlag($context->getPlugin()->getPayments(), false);
-        $context->scheduleClearCache(UpdateContext::CACHE_LIST_ALL);
+        $context->scheduleClearCache(DeactivateContext::CACHE_LIST_ALL);
     }
 
     /**
@@ -59,7 +59,7 @@ class Paymentwall extends Plugin
     public function activate(ActivateContext $context)
     {
         $this->setActiveFlag($context->getPlugin()->getPayments(), true);
-        $context->scheduleClearCache(UpdateContext::CACHE_LIST_ALL);
+        $context->scheduleClearCache(ActivateContext::CACHE_LIST_ALL);
     }
 
     private function setActiveFlag($payments, $active)
