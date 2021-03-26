@@ -1,0 +1,15 @@
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="paymentwall.payment_service" class="Paymentwall\Components\Services\PaymentService"/>
+        <service id="paymentwall.pingback_service" class="Paymentwall\Components\Services\PingbackService"/>
+        <service id="paymentwall.paymentwall_setting" class="Paymentwall\Components\Services\PaymentwallSetting"/>
+        <service id="paymentwall.delivery_service" class="Paymentwall\Components\Services\DeliveryConfirmationService"/>
+        <service id="paymentwall.refund_service" class="Paymentwall\Components\Services\RefundService"/>
+        <service id="paymentwall.paymentsystem_service" class="Paymentwall\Components\Services\PaymentSystemService"/>
+        <service id="paymentwall.order_service" class="Paymentwall\Components\Services\OrderService">
+            <argument type="service" id="dbal_connection"/>
+        </service>
+    </services>
+</container>
